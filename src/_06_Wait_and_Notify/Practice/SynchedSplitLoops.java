@@ -15,30 +15,35 @@ printed in order.
   
 */
 
-public class SynchedSplitLoops {
+public class SynchedSplitLoops implements Runnable {
+	static Object threadLock = new Object();
 	static int counter = 0;
 	
-	public static void main(String[] args) {
-		Thread t1 = new Thread(() -> {
-			for(int i = 0; i < 100000; i++) {
-				counter++;
+	static int totalThreads = 0;
+	private int thread;
+	public SynchedSplitLoops() {
+		totalThreads++;
+		thread = totalThreads;
+	}
+	
+
+	@Override
+	public void run() {
+		while(counter<=100000) {
+			synchronized(threadLock) { //locks this block of code if another thread is using threadLock
+				if(thread==2) {
+					counter++;
+				}
+				else {
+					System.out.println(counter);
+				}
+				threadLock.notify();
+				try {
+					threadLock.wait(); //pauses execution until another thread calls notify using threadLock
+				} catch (InterruptedException e) {
+					System.out.println("error!");
+				}
 			}
-		});
-		
-		Thread t2 = new Thread(() -> {
-			for(int i = 0; i < 100000; i++) {
-				System.out.println(counter);
-			}
-		});
-		
-		t1.start();
-		t2.start();
-		
-		try {
-			t1.join();
-			t2.join();
-		} catch (InterruptedException e) {
-			System.err.println("Could not join threads");
 		}
 		
 	}

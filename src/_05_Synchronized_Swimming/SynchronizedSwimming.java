@@ -34,10 +34,13 @@ public class SynchronizedSwimming {
 	}
 
 	public static void takeTurn(Swimmer swimmer) {
-		try {
-			swimLap(swimmer);
-			Thread.sleep(100);
-		} catch (InterruptedException ignore) {
+		synchronized (swimmingPool) {
+			try {
+				swimLap(swimmer);
+				Thread.sleep(100);
+			} catch (InterruptedException ignore) {
+			}
+			
 		}
 	}
 }
